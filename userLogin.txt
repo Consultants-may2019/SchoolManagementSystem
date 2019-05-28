@@ -1,0 +1,73 @@
+==============User Login Code============
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Data;
+using System.Data.SqlClient;
+
+namespace School_Management
+{
+    public partial class Login : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void btnSignIn_Click(object sender, EventArgs e)
+        {
+            bool User = CheckUser(txtEmail.Text, txtPass.Text);
+            if (User == true)
+            {
+                Session["Email_Id"] = txtEmail.Text;
+
+                Session["Role"] = GetRole(txtEmail.Text);
+                Response.Write(Session["Role"].ToString());
+            }
+         
+            else
+            {
+                Response.Write("Invalid Userid or Password");
+            }
+            
+        }
+
+        bool CheckUser(string Email_Id, string Password)
+        {
+
+            DataTable dt = FillData();
+            if (dt.Rows.Count > 0)
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+
+        DataTable FillData()
+        {
+            DataSet ds;
+            using (SqlConnection con = new SqlConnection("Data Source=.;Initial Catalog=GICproject;Integrated Security=True"))
+            {
+                using (SqlCommand com = new SqlCommand("Select * from tbl_User where Email_Id = @Email_Id and Password = @Password", con))
+                {
+                    com.Parameters.AddWithValue("@Email_Id", txtEmail.Text);
+                    com.Parameters.AddWithValue("@Password", txtPass.Text);
+                    SqlDataAdapter ada = new SqlDataAdapter();
+                    ada.SelectCommand = com;
+                    ds = new DataSet();
+                    ada.Fill(ds, "tbl_User");
+                }
+            }
+            return ds.Tables["tbl_User"];
+        }
+
+        int GetRole(string UserName)
+        {
+            DataTable dt = FillData();
+            int role = (int)dt.Rows[0]["Role"];
+            return role;
+        }
+
+    }
+}
