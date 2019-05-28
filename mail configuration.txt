@@ -1,0 +1,80 @@
+void sendmail()
+        {
+            string HostAdd = ConfigurationManager.AppSettings["Host"].ToString();
+            string FromEmailid = ConfigurationManager.AppSettings["FromMail"].ToString();
+            string Pass = ConfigurationManager.AppSettings["Password"].ToString();
+           
+            MailMessage mailMessage = new MailMessage();
+            mailMessage.From = new MailAddress(FromEmailid); //From Email Id stored in config file
+            mailMessage.Subject = "Request"; //Subject of Email  
+            mailMessage.Body = (SchoolName.Text+"\n"+Address.Text+"\n"+pincode.Text); //body or message of Email
+
+            mailMessage.To.Add(new MailAddress("reciever mail address"));
+
+            System.Net.Mail.SmtpClient smtp = new
+            System.Net.Mail.SmtpClient();   
+            smtp.Host = HostAdd;          
+
+            smtp.EnableSsl = true;
+            NetworkCredential NetworkCred = new NetworkCredential();
+            NetworkCred.UserName = mailMessage.From.Address;
+            NetworkCred.Password = Pass;
+            smtp.Credentials = NetworkCred;
+            smtp.Port = 587;
+            smtp.Send(mailMessage); 
+
+        }
+
+
+void  readmail()
+        {
+            
+            string imap = ConfigurationManager.AppSettings["IMAP"];
+            string userId = ConfigurationManager.AppSettings["UserID"];
+            string password = ConfigurationManager.AppSettings["Password"];
+            string mailBox = ConfigurationManager.AppSettings["MailBox"];
+            imapClient.ConnectSsl(imap);
+            imapClient.Login(userId, password);
+            Mailbox mailbox = GetMailBox();
+            MessageCollection msgList = mailbox.SearchParse("Unseen");
+
+
+
+            if (msgList != null)
+            {
+
+                foreach (Message msg in msgList)
+                {
+
+                   if(msg.Subject.ToString()=="Request" && msg.BodyText.ToString()=="Approved")
+                    {
+			// call insertsetail method
+                    }
+                }
+            }
+
+
+ private Mailbox GetMailBox()
+        {
+           
+            Mailbox inbox = imapClient.SelectMailbox("Inbox");
+            return inbox;
+        }
+
+
+
+===========================================>CONGIG FILE<==========================================================
+
+
+
+ <appSettings>
+    <add key="Host" value="smtp-mail.outlook.com" />
+    <add key="Port" value="587" />
+    <add key="FromMail" value="abhishek.gupta@gridinfocom.com"/>
+    <add key="Password" value=""/>
+
+  <add key="IMAP" value="imap.outlook.com" />
+    <add key="UserID" value="abhishek.gupta@gridinfocom.com" />
+    
+    <add key="MailBox" value="Inbox" />
+
