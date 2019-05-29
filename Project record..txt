@@ -1,0 +1,263 @@
+report code of records in Project.
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Configuration;
+using System.Data.SqlClient;
+
+namespace WebApplication1
+{
+    public partial class WebForm6 : System.Web.UI.Page
+    {
+        static string GetConnectionString()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["Connection"].ToString();
+            return connectionString;
+        }
+        static SqlConnection GetConnection()
+        {
+            return new SqlConnection(GetConnectionString());
+        }
+        protected void Page_Load(object sender, EventArgs e)
+        {
+
+            if (!IsPostBack)
+            {
+                fillSchool();
+                 Affilated();
+                fillState();
+            }
+                
+           
+           
+        }
+
+        protected void s_id_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Employee();
+        }
+        void fillSchool()
+        {
+            using (SqlConnection con = GetConnection())
+            {
+                using (SqlCommand com = new SqlCommand())
+                {
+                    string getSchoolRecord = "select * from School";
+                    com.Connection = con;
+                    com.CommandText = getSchoolRecord;
+
+                    con.Open();
+                    SqlDataReader read=com.ExecuteReader();
+                    School.DataSource = read;
+                    School.DataTextField = "schoolName";
+                    School.DataValueField = "schoolID";
+                    School.DataBind();
+                    con.Close();
+                    School.Items.Insert(0, new ListItem("--Select School--"));
+                }
+            }
+        }
+        void Affilated()
+        {
+
+            using (SqlConnection con = GetConnection())
+            {
+                using (SqlCommand com = new SqlCommand())
+                {
+                    string qyery = "select * from AffilatedAuthority";
+                    com.Connection = con;
+                    com.CommandText = qyery;
+
+                    con.Open();
+                    SqlDataReader read = com.ExecuteReader();
+                    Affi.DataSource = read;
+                    Affi.DataTextField = "authority";
+                    Affi.DataValueField = "id";
+                    Affi.DataBind();
+                    Affi.Items.Insert(0, new ListItem("--select Board--"));
+                }
+            }
+        }
+        void School_Affi()
+        {
+            using (SqlConnection con = GetConnection())
+            {
+                using (SqlCommand com = new SqlCommand())
+                {
+                    string query = "select * from School where AffilatedTo=@id";
+                    com.Connection = con;
+                    com.CommandText = query;
+
+                    com.Parameters.AddWithValue("@id", Affi.SelectedValue);
+                    con.Open();
+                    SqlDataReader read = com.ExecuteReader();
+                    AffiSchool.DataSource = read;
+                    AffiSchool.DataTextField = "schoolName";
+                    AffiSchool.DataValueField = "schoolID";
+
+                    AffiSchool.DataBind();
+                    AffiSchool.Items.Insert(0, new ListItem("--select School Affilated to Board--"));
+                }
+            }
+        }
+
+        void fillState()
+        {
+            using (SqlConnection con = GetConnection())
+            {
+                using (SqlCommand com = new SqlCommand())
+                {
+                    string query = "select * from stateName1";
+
+                    com.Connection = con;
+                    com.CommandText = query;
+
+                    con.Open();
+                    SqlDataReader read = com.ExecuteReader();
+                    state.DataSource = read;
+                    state.DataTextField = "stateName";
+                    state.DataValueField = "s_id";
+                    state.DataBind();
+                    state.Items.Insert(0, new ListItem("--select state--"));
+                }
+            }
+        }
+
+        void fillCity()
+        {
+            using (SqlConnection con = GetConnection())
+            {
+                using (SqlCommand com = new SqlCommand())
+                {
+                    string query = "select * from city1 where s_id=@id";
+                    com.Connection = con;
+                    com.CommandText = query;
+
+                    com.Parameters.AddWithValue("@id", state.SelectedValue);
+                    con.Open();
+                    SqlDataReader read = com.ExecuteReader();
+                    city.DataSource = read;
+                    city.DataTextField = "cityName";
+                    city.DataValueField = "c_id";
+
+                    city.DataBind();
+                    city.Items.Insert(0, new ListItem("--select city--"));
+                }
+            }
+        }
+
+        void School_Affilated()
+        {
+            using (SqlConnection con = GetConnection())
+            {
+                using (SqlCommand com = new SqlCommand())
+                {
+                    string query = "select * from School where city2=@id";
+                    com.Connection = con;
+                    com.CommandText = query;
+
+                    com.Parameters.AddWithValue("@id", city.SelectedValue);
+                    con.Open();
+                    SqlDataReader read = com.ExecuteReader();
+                    citySchool.DataSource = read;
+                    citySchool.DataTextField = "schoolName";
+                    citySchool.DataValueField = "schoolID";
+
+                    citySchool.DataBind();
+                    citySchool.Items.Insert(0, new ListItem("--select School in city--"));
+
+                }
+            }
+        }
+
+        void Employee()
+        {
+            using (SqlConnection con = GetConnection())
+            {
+                using (SqlCommand com = new SqlCommand())
+                {
+                    string query = "select * from Emp where SchoolID=@id";
+                    com.Connection = con;
+                    com.CommandText = query;
+
+                    com.Parameters.AddWithValue("@id", School.SelectedValue);
+                    con.Open();
+                    SqlDataReader read = com.ExecuteReader();
+                    Emp.DataSource = read;
+                    Emp.DataTextField = "FirstName";
+                    Emp.DataValueField = "id";
+
+                    Emp.DataBind();
+                    Emp.Items.Insert(0,new ListItem("--select Employee--"));
+                }
+            }
+
+        }
+
+        protected void Affilated_list(object sender, EventArgs e)
+        {
+            School_Affi();
+        }
+
+        protected void Affilated_school(object sender, EventArgs e)
+        {
+            
+        }
+
+        protected void state_button(object sender, EventArgs e)
+        {
+            fillCity();
+        }
+
+        protected void city_button(object sender, EventArgs e)
+        {
+            School_Affilated();
+           // Response.Write("hii");
+        }
+
+        protected void School_button(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void Emp_button(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
+
+
+
+==========================Html Code==============
+
+<%@ Page Title="" Language="C#" MasterPageFile="~/SchoolProject.Master" AutoEventWireup="true" CodeBehind="reportPage.aspx.cs" Inherits="WebApplication1.WebForm6" %>
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+    <div class="dropdown">
+        <div>
+        <label for="School List">List Of Schools:</label>
+            <asp:DropDownList ID="School" class="btn btn-primary dropdown-toggle" runat="server" OnSelectedIndexChanged="s_id_SelectedIndexChanged" AutoPostBack="True"></asp:DropDownList>
+            <label for="Employee List">List Of Employee:</label>
+            <asp:DropDownList ID="Emp" class="btn btn-primary dropdown-toggle" runat="server" OnSelectedIndexChanged="Emp_button"></asp:DropDownList>
+         <label for="Board">Affilated To:</label>
+         <asp:DropDownList ID="Affi" class="btn btn-primary dropdown-toggle" runat="server" OnSelectedIndexChanged="Affilated_list" AutoPostBack="True"></asp:DropDownList>
+         <label for="School Affilated">List of School Afilated to Board:</label>
+         <asp:DropDownList ID="AffiSchool" class="btn btn-primary dropdown-toggle" runat="server" OnSelectedIndexChanged="Affilated_school" AutoPostBack="True"></asp:DropDownList>
+        </div>
+        <pre>
+         </pre>
+        <div>
+            <label for="state Name">State Name:</label>
+        <asp:DropDownList ID="state" class="btn btn-primary dropdown-toggle" runat="server" OnSelectedIndexChanged="state_button" AutoPostBack="True"></asp:DropDownList>
+         <label for="City Name">City Name:</label>
+         <asp:DropDownList ID="city" class="btn btn-primary dropdown-toggle" runat="server" OnSelectedIndexChanged="city_button" AutoPostBack="True"></asp:DropDownList>
+         <label for="School Name">School Name:</label>
+         <asp:DropDownList ID="citySchool" class="btn btn-primary dropdown-toggle" runat="server" OnSelectedIndexChanged="School_button"></asp:DropDownList>
+        </div>
+</div>
+    
+
+</asp:Content>
